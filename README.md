@@ -1,10 +1,14 @@
 # Satisfactory game server
-This project formed while I study for the CKA. I hope to add to this as time allows. My goal was to not use Ai at all but only to use [k8s docs](https://kubernetes.io/docs/home/) and the [Satisfactory wiki](https://satisfactory.wiki.gg/wiki/Dedicated_servers) when writing all this code.
+This project was formed while I study for the CKA. My goal was to not use Ai at all but only the [k8s docs](https://kubernetes.io/docs/home/) and the [Satisfactory wiki](https://satisfactory.wiki.gg/wiki/Dedicated_servers) when writing all this code. I hope to add to this as time allows.
 
-That said. This is how to deploy a base Satisfactory game server into a kubernetes cluster.
-My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but should work in any type of cluster as long as you have enough resources on your worker nodes.
+Satifactory needs a cpu with good single core performance: [Requirements](https://satisfactory.wiki.gg/wiki/Dedicated_servers#Requirements). I have set resource limits/requests to met these requirements and have not seen any performance issues in the 90+ hours of play with 3 other people. For context my VMhost's CPU is a Ryzen 3900x with 64GB of ram.
+
+That said. This is how I deployed a base Satisfactory game server into my kubernetes cluster.
 
 ## How I setup my cluster ##
+My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but should work in any type of cluster as long as you have enough resources on your worker nodes.
+
+
   1. I deployed 1 control node and 3 worker nodes(all Ubuntu Server 24.04) as VMs in proxmox and my synology NAS. I put my control node and 1 working node on my synology for lighter workloads (2 vCPU, 4 GB ram) and the other 2 nodes in proxmox (4 vCPU 12 GB ram). I used my [ansible playbook](https://github.com/ChrisZ-IT/initial_k8s_node_prep) to prep each node. Then used kubeadm init per k8s docs to setup my cluster.
 
   2. Installed Calico as my K8s CNI
@@ -16,6 +20,7 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 
 
 ## Satisfactory deployment
+
   1. Add the label `rquiredCPU=high` to the worker node(s) you want allow this pod to go on `kubectl label nodes kubewrk01 kubewrk02 rquiredCPU=high`
   2. Create the satisfactory namespace `kubectl create ns satisfactory`
   3. Clone this project down and CD into that directory
@@ -30,3 +35,4 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
   3. Replace local-storage class & nfs fstab mounts with the nfs storage class for my persistent storage.
   4. Setup chron job to restart the pod once a day to mirror the default behavior the server's service within the pod.
   5. Move server config file to a configMap/Secret volume. Maybe look at adding the server's password to this as well this is a manual step when you 'claim' your server when you add it to your server list in game.
+  6. Convert all this to a helm chart for even easier deployment.
