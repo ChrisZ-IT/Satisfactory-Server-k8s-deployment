@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: satisfactory
+  name: satisfactory
+  namespace: satisfactory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: satisfactory
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: satisfactory
+    spec:
+      nodeSelector:
+        rquiredCPU: high
+      volumes:
+        - name: satisfactory-gamefiles-volume
+          persistentVolumeClaim:
+            claimName: satisfactory-gamefiles-pvc
+        - name: satisfactory-configs-volume
+          persistentVolumeClaim:
+            claimName: satisfactory-configs-pvc
+      initContainers:
+      - name: init-steamcmd
+        image: docker.io/steamcmd/steamcmd:ubuntu
+        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu']
+        securityContext:
+          allowPrivilegeEscalation: true
+        volumeMounts:
+        - name: satisfactory-gamefiles-volume
+          mountPath: /home/ubuntu/SatisfactoryDedicatedServer
+        - name: satisfactory-configs-volume
+          mountPath: /home/ubuntu/.config
+      containers:
+      - name: satisfactory
+        image: docker.io/ubuntu:latest
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        resources:
+          limits:
+            cpu: "3"
+            memory: "8Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        ports:
+        - containerPort: 7777
+          name: 7777-tcp
+          protocol: TCP
+        - containerPort: 7777
+          name: 7777-udp
+          protocol: UDP
+        - containerPort: 8888
+          name: 8888-tcp
+          protocol: TCP
+        command: ['sh', '-c', '/home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh']
+        volumeMounts:
+        - name: satisfactory-gamefiles-volume
+          mountPath: /home/ubuntu/SatisfactoryDedicatedServer
+        - name: satisfactory-configs-volume
+          mountPath: /home/ubuntu/.config
