@@ -29,7 +29,8 @@ spec:
       initContainers:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
-        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu']
+        imagePullPolicy: Always
+        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu || rm -rf /home/ubuntu/SatisfactoryDedicatedServer && exit 1']
         securityContext:
           allowPrivilegeEscalation: true
         volumeMounts:
@@ -40,6 +41,7 @@ spec:
       containers:
       - name: satisfactory
         image: docker.io/ubuntu:latest
+        imagePullPolicy: 
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
