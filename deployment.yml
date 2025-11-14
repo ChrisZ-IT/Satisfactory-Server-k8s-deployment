@@ -38,6 +38,8 @@ spec:
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
+        - name: configmap-volume
+          mountPath: /home/ubuntu/configs
       containers:
       - name: satisfactory
         image: docker.io/ubuntu:latest
@@ -54,13 +56,13 @@ spec:
             memory: "2Gi"
         ports:
         - containerPort: 7777
-          name: 7777-tcp
+          name: server-api
           protocol: TCP
         - containerPort: 7777
-          name: 7777-udp
+          name: game-api
           protocol: UDP
         - containerPort: 8888
-          name: 8888-tcp
+          name: game-messaging
           protocol: TCP
         command: ['sh', '-c', '/home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh']
         volumeMounts:
@@ -68,3 +70,6 @@ spec:
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
+        - name: configmap-volume
+          configMap:        
+            name: satisfactory-configs
