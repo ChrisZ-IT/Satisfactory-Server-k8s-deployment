@@ -30,7 +30,7 @@ spec:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
         imagePullPolicy: Always
-        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu || rm -rf /home/ubuntu/SatisfactoryDedicatedServer && exit 1']
+        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu && exit 0 || rm -rf /home/ubuntu/SatisfactoryDedicatedServer && exit 1']
         securityContext:
           allowPrivilegeEscalation: true
         volumeMounts:
