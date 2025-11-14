@@ -72,4 +72,4 @@ spec:
           mountPath: /home/ubuntu/.config
         - name: configmap-volume
           configMap:        
-            name: satisfactory-configs
+            name: satisfactory-configmap
