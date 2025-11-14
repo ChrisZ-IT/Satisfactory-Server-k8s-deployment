@@ -26,6 +26,9 @@ spec:
         - name: satisfactory-configs-volume
           persistentVolumeClaim:
             claimName: satisfactory-configs-pvc
+        - name: configmap-volume
+          configMap:        
+            name: satisfactory-configmap
       initContainers:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
@@ -38,8 +41,6 @@ spec:
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
-        - name: configmap-volume
-          mountPath: /home/ubuntu/configs
       containers:
       - name: satisfactory
         image: docker.io/ubuntu:latest
@@ -71,5 +72,4 @@ spec:
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
         - name: configmap-volume
-          configMap:        
-            name: satisfactory-configmap
+          mountPath: /home/ubuntu/configs
