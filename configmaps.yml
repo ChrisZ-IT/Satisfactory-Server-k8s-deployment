@@ -6,13 +6,14 @@ metadata:
   namespace: satisfactory
 data:
   MAXPLAYERS: "4"
-  SendGameplayData: "0"
-  bImplicitSend: False
-  DisableSeasonalEvents: "0"
-  ServerTickRate: "30"
-  AutosaveInterval: "300"
-  mNumRotatingAutosaves: "3"
-  ServerRestartTimeSlot: "1440.000000"
+  DISABLE_SEASONAL_EVENTS: "0"
+  SEND_GAMEPLAY_DATA: "0"
+  SEND_CRASH_REPORTS: "False"  
+  SERVER_TICK_RATE: "30"
+  AUTOSAVE_INTERVAL: "300"
+  NUM_ROTATING_AUTOSAVES: "3"
+  SERVER_RESTART_TIMESLOT: "1440.000000"
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -25,7 +26,7 @@ data:
     set -ex
     if steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer \
     +login anonymous +app_update 1690800 validate +quit; then
-      chown -R 1000:1000 /home/ubuntu
+      chown -R 1000:1000 /home/ubuntu/SatisfactoryDedicatedServer
       exit 0
     else
       rm -rf /home/ubuntu/SatisfactoryDedicatedServer
@@ -36,4 +37,15 @@ data:
     #!/bin/bash
     set -ex
     /home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh \
-        -ini:Game:[/Script/Engine.GameSession]:MaxPlayers=$MAXPLAYERS\n\n"
+        -ini:Game:[/Script/Engine.GameSession]:MaxPlayers=$MAXPLAYERS \
+        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:FG.DisableSeasonalEvents=$DISABLE_SEASONAL_EVENTS \
+        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:FG.SendGameplayData=$SEND_GAMEPLAY_DATA \
+        -ini:Engine:[CrashReportClient]:bImplicitSend=$SEND_CRASH_REPORTS \
+        -ini:Engine:[/Script/OnlineSubsystemUtils.IpNetDriver]:NetServerMaxTickRate=$SERVER_TICK_RATE \
+        -ini:Engine:[/Script/OnlineSubsystemUtils.IpNetDriver]:LanServerMaxTickRate=$SERVER_TICK_RATE \
+        -ini:Engine:[/Script/SocketSubsystemEpic.EpicNetDriver]:NetServerMaxTickRate=$SERVER_TICK_RATE \
+        -ini:Engine:[/Script/SocketSubsystemEpic.EpicNetDriver]:LanServerMaxTickRate=$SERVER_TICK_RATE \
+        -ini:Engine:[/Script/Engine.Engine]:NetClientTicksPerSecond=$SERVER_TICK_RATE \
+        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:AutosaveInterval=$AUTOSAVE_INTERVAL \
+        -ini:Engine:[/Script/FactoryGame.FGSaveSession]:mNumRotatingAutosaves=$NUM_ROTATING_AUTOSAVES \
+        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:ServerRestartTimeSlot=$SERVER_RESTART_TIMESLOT

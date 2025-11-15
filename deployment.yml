@@ -26,9 +26,10 @@ spec:
         - name: satisfactory-configs-volume
           persistentVolumeClaim:
             claimName: satisfactory-configs-pvc
-        - name: configmap-volume
+        - name: configmap-scripts
           configMap:        
             name: satisfactory-scripts
+            defaultMode: 0755
       initContainers:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
@@ -36,7 +37,7 @@ spec:
         command:
           - 'sh'
           - '-c'
-          - 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu && exit 0 || rm -rf /home/ubuntu/SatisfactoryDedicatedServer && exit 1'
+          - '/home/ubuntu/scripts/init.sh'
         securityContext:
           allowPrivilegeEscalation: true
         volumeMounts:
@@ -44,7 +45,7 @@ spec:
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
-        - name: configmap-volume
+        - name: configmap-scripts
           mountPath: /home/ubuntu/scripts
       containers:
       - name: satisfactory
@@ -62,7 +63,7 @@ spec:
             memory: "2Gi"
         envFrom:
           - configMapRef:
-              name: satisfactory-configmap
+              name: satisfactory-config
         ports:
         - containerPort: 7777
           name: server-api
@@ -76,11 +77,11 @@ spec:
         command: 
           - 'sh'
           - '-c'
-          - '/home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh'
+          - '/home/ubuntu/scripts/start.sh'
         volumeMounts:
         - name: satisfactory-gamefiles-volume
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
-        - name: configmap-volume
+        - name: configmap-scripts
           mountPath: /home/ubuntu/scripts
