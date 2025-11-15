@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: satisfactory-config
+  namespace: satisfactory
+data:
+  MAXPLAYERS: "4"
+  SendGameplayData: "0"
+  bImplicitSend: False
+  DisableSeasonalEvents: "0"
+  ServerTickRate: "30"
+  AutosaveInterval: "300"
+  mNumRotatingAutosaves: "3"
+  ServerRestartTimeSlot: "1440.000000"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: satisfactory-scripts
+  namespace: satisfactory
+data:
+  init.sh: |
+    #!/bin/bash
+    set -ex
+    if steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer \
+    +login anonymous +app_update 1690800 validate +quit; then
+      chown -R 1000:1000 /home/ubuntu
+      exit 0
+    else
+      rm -rf /home/ubuntu/SatisfactoryDedicatedServer
+      exit 1
+    fi
+
+  start.sh: |
+    #!/bin/bash
+    set -ex
+    /home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh \
+        -ini:Game:[/Script/Engine.GameSession]:MaxPlayers=$MAXPLAYERS\n\n"
