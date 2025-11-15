@@ -11,15 +11,15 @@ spec:
     app: satisfactory
   externalTrafficPolicy: Local
   ports:
-  - name: 7777-udp
-    port: 7777
-    protocol: UDP
-    targetPort: 7777
-  - name: 7777-tcp
+  - name: server-api
     port: 7777
     protocol: TCP
     targetPort: 7777
-  - name: 8888-tcp
+  - name: game-traffic
+    port: 7777
+    protocol: UDP
+    targetPort: 7777
+  - name: messaging-service
     port: 8888
     protocol: TCP
     targetPort: 8888

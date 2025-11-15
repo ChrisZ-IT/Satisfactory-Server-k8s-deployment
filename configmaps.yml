@@ -38,8 +38,8 @@ data:
     set -ex
     /home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh \
         -ini:Game:[/Script/Engine.GameSession]:MaxPlayers=$MAXPLAYERS \
-        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:mIntValues=(("FG.DisableSeasonalEvents", $DISABLE_SEASONAL_EVENTS),("FG.SendGameplayData", $SEND_GAMEPLAY_DATA)) \
-        -ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:mFloatValues=(("FG.ServerRestartTimeSlot", $SERVER_RESTART_TIMESLOT)) \
+        "-ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:mIntValues=((\"FG.DisableSeasonalEvents\", $DISABLE_SEASONAL_EVENTS),(\"FG.SendGameplayData\", $SEND_GAMEPLAY_DATA))" \
+        "-ini:GameUserSettings:[/Script/FactoryGame.FGGameUserSettings]:mFloatValues=((\"FG.ServerRestartTimeSlot\", $SERVER_RESTART_TIMESLOT))" \
         -ini:Engine:[CrashReportClient]:bImplicitSend=$SEND_CRASH_REPORTS \
         -ini:Engine:[/Script/OnlineSubsystemUtils.IpNetDriver]:NetServerMaxTickRate=$SERVER_TICK_RATE \
         -ini:Engine:[/Script/OnlineSubsystemUtils.IpNetDriver]:LanServerMaxTickRate=$SERVER_TICK_RATE \
