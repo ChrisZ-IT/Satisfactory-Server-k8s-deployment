@@ -33,7 +33,10 @@ spec:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
         imagePullPolicy: Always
-        command: ['sh', '-c', 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu']
+        command:
+          - 'sh'
+          - '-c'
+          - 'steamcmd +force_install_dir /home/ubuntu/SatisfactoryDedicatedServer +login anonymous +app_update 1690800 validate +quit && chown -R 1000:1000 /home/ubuntu && exit 0 || rm -rf /home/ubuntu/SatisfactoryDedicatedServer && exit 1'
         securityContext:
           allowPrivilegeEscalation: true
         volumeMounts:
@@ -65,7 +68,10 @@ spec:
         - containerPort: 8888
           name: game-messaging
           protocol: TCP
-        command: ['sh', '-c', '/home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh']
+        command: 
+          - 'sh'
+          - '-c'
+          - '/home/ubuntu/SatisfactoryDedicatedServer/FactoryServer.sh']
         volumeMounts:
         - name: satisfactory-gamefiles-volume
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
