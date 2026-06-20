@@ -2,10 +2,10 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: local-storage
+  name: nfs-storage
   namespace: satisfactory
 provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -13,27 +13,20 @@ metadata:
   name: satisfactory-gamefiles-pv
   namespace: satisfactory
 spec:
-  storageClassName: local-storage
   capacity:
-    storage: 2Gi
+    storage: 5Gi
+  volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: "/opt/persistent_volumes/satisfactory/SatisfactoryDedicatedServer"
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: satisfactory-configs-pv
-  namespace: satisfactory
-spec:
-  storageClassName: local-storage
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/opt/persistent_volumes/satisfactory/configs"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-storage
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+    - _netdev
+  nfs:
+    path: /volume1/kubernetes_volumes/satisfactory/SatisfactoryDedicatedServer
+    server: 192.168.0.110
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -41,12 +34,33 @@ metadata:
   name: satisfactory-gamefiles-pvc
   namespace: satisfactory
 spec:
-  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
+  storageClassName: nfs-storage
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: satisfactory-configs-pv
+  namespace: satisfactory
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-storage
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+    - _netdev
+  nfs:
+    path: /volume1/kubernetes_volumes/satisfactory/configs
+    server: 192.168.0.110
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -54,9 +68,9 @@ metadata:
   name: satisfactory-configs-pvc
   namespace: satisfactory
 spec:
-  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
+  storageClassName: nfs-storage
   resources:
     requests:
       storage: 1Gi
