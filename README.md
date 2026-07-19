@@ -15,7 +15,7 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 
   3. Deployed MetalLB as my cluster loadbalancer([Example of how I set these up](https://github.com/ChrisZ-IT/base_k8s_deployment))
 
-  4. Setup an NFS share on my synology and mounted it to each k8s node @ `/opt/persistent_volumes`
+  4. Setup an NFS share on my synology and allow each of my k8s nodes to be able to connect to it.
     I have volume snapshots and file level backups setup on my synology for backing up my persistent volume data
 
 
@@ -32,7 +32,6 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 ## TODO
   1. Setup network policies to further lock down who and what can connect to this server.
   2. Setup vertical pod autoscaling since this is a very single core/ram heavy single pod type of deployment. I haven't had any performance issues with this server yet due to the resource limits/requests, but this gives me an excuse to setup metrics server and better monitoring of my other pods.
-  3. Replace local-storage class & nfs fstab mounts with the nfs storage class for my persistent storage.
-  4. Setup chron job to restart the pod once a day to mirror the default behavior the server's service within the pod.
-  5. Move server config file to a configMap/Secret volume. Maybe look at adding the server's password to this as well this is a manual step when you 'claim' your server when you add it to your server list in game.
-  6. Convert all this to a helm chart for even easier deployment.
+  3. Setup chron job to restart the pod once a day to mirror the default behavior the server's service within the pod.
+  4. Move server config file to a configMap/Secret volume. Maybe look at adding the server's password to this as well this is a manual step when you 'claim' your server when you add it to your server list in game.
+  5. Convert all this to a helm chart for even easier deployment.
