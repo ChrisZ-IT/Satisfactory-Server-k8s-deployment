@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: satisfactory-custom-configs
+  name: satisfactory-server-configs
   namespace: satisfactory
 data:
  Game.ini: |
