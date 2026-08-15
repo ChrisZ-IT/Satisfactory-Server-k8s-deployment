@@ -26,6 +26,9 @@ spec:
         - name: satisfactory-configs-volume
           persistentVolumeClaim:
             claimName: satisfactory-configs-pvc
+        - name: satisfactory-game-ini
+          configMap:
+            name: satisfactory-game-ini
       initContainers:
       - name: init-steamcmd
         image: docker.io/steamcmd/steamcmd:ubuntu
@@ -68,3 +71,7 @@ spec:
           mountPath: /home/ubuntu/SatisfactoryDedicatedServer
         - name: satisfactory-configs-volume
           mountPath: /home/ubuntu/.config
+        - name: satisfactory-game-ini
+          mountPath: home/ubuntu/SatisfactoryDedicatedServer/FactoryGame/Saved/Config/LinuxServer/Game.ini
+          subPath: Game.ini
+
