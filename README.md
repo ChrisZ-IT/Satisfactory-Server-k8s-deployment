@@ -1,7 +1,7 @@
 # Satisfactory game server
 This project was formed while I study for the CKA. My goal was to not use Ai at all but only the [k8s docs](https://kubernetes.io/docs/home/) and the [Satisfactory wiki](https://satisfactory.wiki.gg/wiki/Dedicated_servers) when writing all this code. I hope to add to this as time allows.
 
-Satifactory needs a cpu with good single core performance: [Requirements](https://satisfactory.wiki.gg/wiki/Dedicated_servers#Requirements). I have set resource limits/requests to met these requirements and have not seen any performance issues in the 90+ hours of play with 3 other people. For context my VMhost's CPU is a Ryzen 3900x with 64GB of ram.
+Satifactory needs a cpu with good single core performance: [Requirements](https://satisfactory.wiki.gg/wiki/Dedicated_servers#Requirements). I have set resource limits/requests to met these requirements and have not seen any performance issues in the 160+ hours of play with 3 other people. For context my VMhost's CPU is a Ryzen 3900x with 64GB of ram.
 
 That said. This is how I deployed a base Satisfactory game server into my kubernetes cluster.
 
@@ -9,7 +9,7 @@ That said. This is how I deployed a base Satisfactory game server into my kubern
 My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but should work in any type of cluster as long as you have enough resources on your worker nodes.
 
 
-  1. I deployed 1 control node and 3 worker nodes(all Ubuntu Server 24.04) as VMs in proxmox and my synology NAS. I put my control node and 1 working node on my synology for lighter workloads (2 vCPU, 4 GB ram) and the other 2 nodes in proxmox (4 vCPU 12 GB ram). I used my [ansible playbook](https://github.com/ChrisZ-IT/initial_k8s_node_prep) to prep each node. Then used kubeadm init per k8s docs to setup my cluster.
+  1. I deployed 1 control node and 3 worker nodes(all Ubuntu Server 24.04) as VMs in proxmox and my synology NAS. I put my control node and 1 working node on my synology for lighter workloads (2 vCPU, 4 GB ram) and the other 2 nodes in proxmox (4 vCPU 12 GB ram). I used my [ansible playbook](https://github.com/ChrisZ-IT/initial_k8s_node_prep) to prep each node. Then used kubeadm init per [k8s docs](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/) to setup my cluster.
 
   2. Installed Calico as my K8s CNI
 
@@ -26,12 +26,18 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
   3. Clone this project down and CD into that directory
   4. Make any necessary changes (examples: change loadbalancerIP, volume hostPaths..etc )
   5. Deploy resources to k8s `kubectl apply -f .`
+    - The deployment has an init container to install(or patch if files already exist) from steam using steamcmd.
   6. Validate your deployment `kubectl get all -n satisfactory`
+    - Validate storage is bound
+    - Validate the svc has registered the pod (endpoints)
+    - Validate the pod has started
+      - View logs:
+        - init container logs example:  `k logs -n satisfactory pods/satisfactory-665b54f567-zt6dx init-steamcmd --follow`
+        - Main server container logs example:  `k logs -n satisfactory pods/satisfactory-665b54f567-zt6dx satisfactory --follow`
   7. At this point you should be able to start playing your new server. Setup any port forwards on your router to your LoadBalancer's external IP to allow external people to be able to join your server.
 
 ## TODO
-  1. Setup network policies to further lock down who and what can connect to this server.
-  2. Setup vertical pod autoscaling since this is a very single core/ram heavy single pod type of deployment. I haven't had any performance issues with this server yet due to the resource limits/requests, but this gives me an excuse to setup metrics server and better monitoring of my other pods.
+  1. Setup network policies to further lock down who can connect to this server(already doing this via my firewall).
+  2. Setup [vertical pod autoscaling](https://kubernetes.io/docs/concepts/workloads/autoscaling/vertical-pod-autoscale/) since this is a very single core/ram heavy single pod type of deployment. I haven't had any performance issues with this server yet due to the resource limits/requests, but this gives me an excuse to setup metrics server and better monitoring of my other pods.
   3. Setup chron job to restart the pod once a day to mirror the default behavior the server's service within the pod.
-  4. Move server config file to a configMap/Secret volume. Maybe look at adding the server's password to this as well this is a manual step when you 'claim' your server when you add it to your server list in game.
-  5. Convert all this to a helm chart for even easier deployment.
+  4. Convert all this to a helm chart for an even easier deployment.

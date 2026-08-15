@@ -43,7 +43,7 @@ spec:
           mountPath: /home/ubuntu/.config
       containers:
       - name: satisfactory
-        image: docker.io/ubuntu:latest
+        image: docker.io/ubuntu:26.04
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 1000
