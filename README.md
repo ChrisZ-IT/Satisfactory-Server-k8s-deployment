@@ -15,8 +15,10 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 
   3. Deployed MetalLB as my cluster loadbalancer([Example of how I set these up](https://github.com/ChrisZ-IT/base_k8s_deployment))
 
+  4. Deployed [cert manager](https://github.com/ChrisZ-IT/cert-manager) (this is optional)
+
   4. Setup an NFS share on my synology and allow each of my k8s nodes to be able to connect to it.
-    I have volume snapshots and file level backups setup on my synology for backing up my persistent volume data
+     - I have volume snapshots and file level backups setup on my synology for backing up my persistent volume data
 
 
 ## Satisfactory deployment
@@ -25,6 +27,9 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
   2. Create the satisfactory namespace `kubectl create ns satisfactory`
   3. Clone this project down and CD into that directory
   4. Make any necessary changes (examples: change loadbalancerIP, volume hostPaths..etc )
+  5. If you are going to be useing cert manager to generate a cert
+      - run the command `export DOMAIN_NAME=<domain> && envsubst < certificate.yml | k apply -f -`
+      if not delete certificate.yml and the volume mounts for the cert secrets in deployment.yml.
   5. Deploy resources to k8s `kubectl apply -f .`
     - The deployment has an init container to install(or patch if files already exist) from steam using steamcmd.
   6. Validate your deployment `kubectl get all -n satisfactory`
