@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: satisfactory-cert
+  namespace: satisfactory
+spec:
+  secretName: satisfactory-cert
+  duration: 2160h
+  renewBefore: 48h
+  privateKey:
+    rotationPolicy: Always
+  commonName: satisfactory.${DOMAIN_NAME}
+  dnsNames:
+    - satisfactory.${DOMAIN_NAME}
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
