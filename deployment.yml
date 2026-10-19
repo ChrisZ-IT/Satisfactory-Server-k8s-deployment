@@ -11,14 +11,15 @@ spec:
   selector:
     matchLabels:
       app: satisfactory
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: satisfactory
     spec:
       nodeSelector:
-        rquiredCPU: high
+        requiredCPU: high
       volumes:
         - name: satisfactory-gamefiles-volume
           persistentVolumeClaim:
