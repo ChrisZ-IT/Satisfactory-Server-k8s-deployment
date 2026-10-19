@@ -23,15 +23,23 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 
 ## Satisfactory deployment
 
-  1. Add the label `rquiredCPU=high` to the worker node(s) you want allow this pod to go on `kubectl label nodes kubewrk01 kubewrk02 rquiredCPU=high`
+  1. Add the label `requiredCPU=high` to the worker node(s) you want allow this pod to go on `kubectl label nodes kubewrk01 kubewrk02 requiredCPU=high`
   2. Create the satisfactory namespace `kubectl create ns satisfactory`
   3. Clone this project down and CD into that directory
-  4. Make any necessary changes (examples: change loadbalancerIP, volume hostPaths..etc )
-  5. If you are going to be useing cert manager to generate a cert
-      - run the command `export DOMAIN_NAME=<domain> && envsubst < certificate.yml | k apply -f -`
-      if not delete certificate.yml and the volume mounts for the cert secrets in deployment.yml.
-  5. Deploy resources to k8s `kubectl apply -f .`
-    - The deployment has an init container to install(or patch if files already exist) from steam using steamcmd.
+  4. Make any necessary changes (examples: change loadbalancer, storage paths..etc )
+  5. Deploy resources:
+    - this block assumes you have `envsubst` installed.
+        ```
+          read -p "Enter Domain(for your cert): " domainname
+          read -p "Enter Player Count: " playercount
+          export DOMAIN_NAME=$domainname
+          export PLAYER_COUNT=$playercount
+          for file in *.yml; do
+            [ -e "$file" ] || continue
+            echo "Applying $file..."
+            envsubst < "$file" | kubectl apply -f -
+          done
+        ```
   6. Validate your deployment `kubectl get all -n satisfactory`
     - Validate storage is bound
     - Validate the svc has registered the pod (endpoints)
@@ -40,6 +48,7 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
         - init container logs example:  `k logs -n satisfactory pods/satisfactory-665b54f567-zt6dx init-steamcmd --follow`
         - Main server container logs example:  `k logs -n satisfactory pods/satisfactory-665b54f567-zt6dx satisfactory --follow`
   7. At this point you should be able to start playing your new server. Setup any port forwards on your router to your LoadBalancer's external IP to allow external people to be able to join your server.
+  8. Ensure you claim your server and setup the admin password from within the game.
 
 ## TODO
   1. Setup network policies to further lock down who can connect to this server(already doing this via my firewall).
