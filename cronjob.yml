@@ -1,0 +1,59 @@
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: satisfactory-svc-account
+  namespace: satisfactory
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: satisfactory-role
+  namespace: satisfactory
+rules:
+  - apiGroups: ["apps", "extensions"]
+    resources: ["deployments"]
+    resourceNames: ["satisfactory"]
+    verbs: ["get", "patch", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: deployment-restart
+  namespace: satisfactory
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: satisfactory-role
+subjects:
+  - kind: ServiceAccount
+    name: satisfactory-svc-account
+    namespace: satisfactory
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: satisfactory-deployment-restart
+  namespace: satisfactory
+spec:
+  schedule: '0 4 * * *' # Restart server at 4am
+  timeZone: America/Denver
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: satisfactory-svc-account
+          restartPolicy: Never
+          containers:
+            - name: satisfactory-restart
+              image: bitnami/kubectl
+              imagePullPolicy: IfNotPresent
+              command:
+                - 'kubectl'
+                - 'rollout'
+                - 'restart'
+                - 'deployment/satisfactory'

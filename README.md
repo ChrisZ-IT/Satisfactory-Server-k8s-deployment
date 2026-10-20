@@ -15,7 +15,7 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 
   3. Deployed MetalLB as my cluster loadbalancer([Example of how I set these up](https://github.com/ChrisZ-IT/base_k8s_deployment))
 
-  4. Deployed [cert manager](https://github.com/ChrisZ-IT/cert-manager) (this is optional)
+  4. Deployed [cert manager](https://github.com/ChrisZ-IT/cert-manager) (this is optional, but you will need to comment out certificate.yml, and the attached tls volumes/secrets in the deployment before applying)
 
   4. Setup an NFS share on my synology and allow each of my k8s nodes to be able to connect to it.
      - I have volume snapshots and file level backups setup on my synology for backing up my persistent volume data
@@ -31,9 +31,19 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
     - this block assumes you have `envsubst` installed.
         ```
           read -p "Enter Domain(for your cert): " domainname
-          read -p "Enter Player Count: " playercount
+          if [[ -z "$domainname" ]]; then
+            echo "domain is blank, Did you comment out all certificate related resources?"
+            read -p "Press enter to continue"
+          fi
+          read -p "Enter Player Count up to 127(4): " playercount
+          playercount=${playercount:-4}
+
           export DOMAIN_NAME=$domainname
           export PLAYER_COUNT=$playercount
+          if [ -f "namespace.yml" ]; then
+            echo "Applying namespace.yml..."
+            kubectl apply -f namespace.yml
+          fi
           for file in *.yml; do
             [ -e "$file" ] || continue
             echo "Applying $file..."
@@ -53,5 +63,4 @@ My current cluster is a 3 node k8s cluster that was deployed via kubeadm, but sh
 ## TODO
   1. Setup network policies to further lock down who can connect to this server(already doing this via my firewall).
   2. Setup [vertical pod autoscaling](https://kubernetes.io/docs/concepts/workloads/autoscaling/vertical-pod-autoscale/) since this is a very single core/ram heavy single pod type of deployment. I haven't had any performance issues with this server yet due to the resource limits/requests, but this gives me an excuse to setup metrics server and better monitoring of my other pods.
-  3. Setup chron job to restart the pod once a day to mirror the default behavior the server's service within the pod.
-  4. Convert all this to a helm chart for an even easier deployment.
+  3. Convert all this to a helm chart for an even easier deployment.
